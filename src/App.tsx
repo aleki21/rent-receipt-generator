@@ -10,7 +10,6 @@ import type {
   Receipt,
 } from "./types/receipt";
 import type { ParseResult } from "./services/mpesaParser";
-import { getNextReceiptNumber } from "./utils/receiptNumber";
 import { getToday } from "./utils/date";
 import {
   getLandlordSettings,
@@ -60,9 +59,7 @@ function App() {
 
     if (parseResult?.success && parseResult.data) {
       const newReceipt: Receipt = {
-        receiptNumber: getNextReceiptNumber(
-          landlord.receiptPrefix
-        ),
+        receiptNumber: "DRAFT",
         issueDate: getToday(),
         payment: parseResult.data,
         rentalPeriod: period,

@@ -8,73 +8,102 @@ interface ReceiptPreviewProps {
 function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
   return (
     <section className="mt-8 w-full max-w-2xl">
-      <div className="rounded-xl bg-white p-8 shadow-sm">
-        {/* Header */}
-        <div className="border-b pb-6 text-center">
-          <h2 className="text-2xl font-bold">
+      <div className="rounded-xl bg-white shadow-sm">
+        {/* Receipt Header */}
+        <div className="border-b px-8 py-8 text-center">
+          <h2 className="text-2xl font-bold tracking-tight">
             {receipt.landlord.businessName}
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-2 text-sm font-semibold tracking-widest text-gray-500">
             RENT PAYMENT RECEIPT
           </p>
 
-          <p className="mt-4 text-sm font-medium">
-            Receipt No: {receipt.receiptNumber}
-          </p>
+          <div className="mt-5 inline-block rounded-full bg-green-100 px-4 py-2">
+            <span className="text-sm font-bold text-green-700">
+              PAID
+            </span>
+          </div>
         </div>
 
-        {/* Landlord information */}
-        <div className="border-b py-6">
-          <h3 className="font-semibold">
+        {/* Receipt Information */}
+        <div className="grid grid-cols-2 gap-6 border-b px-8 py-6">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Receipt Number
+            </p>
+
+            <p className="mt-1 font-semibold">
+              {receipt.receiptNumber}
+            </p>
+          </div>
+
+          <div className="text-right">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Issue Date
+            </p>
+
+            <p className="mt-1 font-semibold">
+              {formatDate(receipt.issueDate)}
+            </p>
+          </div>
+        </div>
+
+        {/* Landlord Details */}
+        <div className="border-b px-8 py-6">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Landlord Details
           </h3>
 
-          <div className="mt-3 space-y-1 text-sm text-gray-600">
-            <p>{receipt.landlord.businessName}</p>
+          <div className="mt-3 space-y-1 text-sm">
+            <p className="font-medium">
+              {receipt.landlord.businessName}
+            </p>
 
-            <p>
-              Phone: {receipt.landlord.phoneNumber}
+            <p className="text-gray-600">
+              {receipt.landlord.phoneNumber}
             </p>
 
             {receipt.landlord.address && (
-              <p>
-                Address: {receipt.landlord.address}
+              <p className="text-gray-600">
+                {receipt.landlord.address}
               </p>
             )}
 
             {receipt.landlord.email && (
-              <p>
-                Email: {receipt.landlord.email}
+              <p className="text-gray-600">
+                {receipt.landlord.email}
               </p>
             )}
           </div>
         </div>
 
-        {/* Tenant / payer */}
-        <div className="border-b py-6">
-          <h3 className="font-semibold">
+        {/* Payer Details */}
+        <div className="border-b px-8 py-6">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Payment From
           </h3>
 
-          <div className="mt-3 space-y-1 text-sm text-gray-600">
-            <p>{receipt.payment.payerName}</p>
+          <div className="mt-3 space-y-1 text-sm">
+            <p className="font-medium">
+              {receipt.payment.payerName}
+            </p>
 
-            <p>
-              Phone: {receipt.payment.phoneNumber}
+            <p className="text-gray-600">
+              {receipt.payment.phoneNumber}
             </p>
           </div>
         </div>
 
-        {/* Payment */}
-        <div className="border-b py-6">
-          <h3 className="font-semibold">
+        {/* Payment Details */}
+        <div className="border-b px-8 py-6">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Payment Details
           </h3>
 
-          <div className="mt-4 space-y-3 text-sm">
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500">
+          <div className="mt-4 divide-y rounded-lg border">
+            <div className="flex justify-between gap-4 px-4 py-3">
+              <span className="text-sm text-gray-500">
                 Amount
               </span>
 
@@ -89,85 +118,98 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
               </span>
             </div>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500">
+            <div className="flex justify-between gap-4 px-4 py-3">
+              <span className="text-sm text-gray-500">
                 Payment Method
               </span>
 
-              <span className="font-medium">
+              <span className="text-sm font-medium">
                 {receipt.paymentMethod}
               </span>
             </div>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500">
+            <div className="flex justify-between gap-4 px-4 py-3">
+              <span className="text-sm text-gray-500">
                 Transaction Code
               </span>
 
-              <span className="font-medium">
+              <span className="text-sm font-medium">
                 {receipt.payment.transactionCode}
               </span>
             </div>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500">
+            <div className="flex justify-between gap-4 px-4 py-3">
+              <span className="text-sm text-gray-500">
                 Payment Date
               </span>
 
-              <span className="font-medium">
-                {receipt.payment.paymentDate}
+              <span className="text-sm font-medium">
+                {formatDate(receipt.payment.paymentDate)}
               </span>
             </div>
 
-            <div className="flex justify-between gap-4">
-              <span className="text-gray-500">
+            <div className="flex justify-between gap-4 px-4 py-3">
+              <span className="text-sm text-gray-500">
                 Payment Time
               </span>
 
-              <span className="font-medium">
+              <span className="text-sm font-medium">
                 {receipt.payment.paymentTime}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Rental period */}
-        <div className="border-b py-6">
-          <h3 className="font-semibold">
+        {/* Rental Period */}
+        <div className="border-b px-8 py-6">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
             Rental Period
           </h3>
 
-          <div className="mt-3 space-y-2 text-sm text-gray-600">
-            <p>
-              <span className="font-medium text-gray-900">
-                From:
-              </span>{" "}
-              {formatDate(receipt.rentalPeriod.startDate)}
-            </p>
+          <div className="mt-4 rounded-lg bg-gray-50 p-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-gray-500">
+                  Start
+                </p>
 
-            <p>
-              <span className="font-medium text-gray-900">
-                To:
-              </span>{" "}
-              {formatDate(receipt.rentalPeriod.endDate)}
-            </p>
+                <p className="mt-1 text-sm font-medium">
+                  {formatDate(
+                    receipt.rentalPeriod.startDate
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-gray-500">
+                  End
+                </p>
+
+                <p className="mt-1 text-sm font-medium">
+                  {formatDate(
+                    receipt.rentalPeriod.endDate
+                  )}
+                </p>
+              </div>
+            </div>
 
             {receipt.rentalPeriod.description && (
-              <p>
+              <p className="mt-4 border-t pt-4 text-sm text-gray-600">
                 {receipt.rentalPeriod.description}
               </p>
             )}
           </div>
         </div>
 
-        {/* Status */}
-        <div className="py-6 text-center">
-          <p className="text-lg font-bold">
-            PAID
+        {/* Footer */}
+        <div className="px-8 py-8 text-center">
+          <p className="text-sm font-medium">
+            Thank you for your payment.
           </p>
 
-          <p className="mt-2 text-sm text-gray-500">
-            Issued on {formatDate(receipt.issueDate)}
+          <p className="mt-2 text-xs text-gray-500">
+            This is a rent payment receipt generated from
+            an M-Pesa payment confirmation.
           </p>
         </div>
       </div>

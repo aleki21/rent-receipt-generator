@@ -5,15 +5,30 @@ interface RentalPeriodFormProps {
   onSubmit: (period: RentalPeriod) => void;
 }
 
-function RentalPeriodForm({ onSubmit }: RentalPeriodFormProps) {
+function RentalPeriodForm({
+  onSubmit,
+}: RentalPeriodFormProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [description, setDescription] = useState("");
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
+    setError("");
+
     if (!startDate || !endDate) {
+      setError("Please enter both the start and end dates.");
+      return;
+    }
+
+    if (endDate < startDate) {
+      setError(
+        "The rental period end date cannot be before the start date."
+      );
       return;
     }
 
@@ -36,7 +51,18 @@ function RentalPeriodForm({ onSubmit }: RentalPeriodFormProps) {
         Enter the period covered by this payment.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+      {error && (
+        <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-medium text-red-700">
+            {error}
+          </p>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 space-y-5"
+      >
         <div>
           <label
             htmlFor="startDate"
@@ -49,7 +75,10 @@ function RentalPeriodForm({ onSubmit }: RentalPeriodFormProps) {
             id="startDate"
             type="date"
             value={startDate}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              setError("");
+            }}
             required
             className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
           />
@@ -67,7 +96,10 @@ function RentalPeriodForm({ onSubmit }: RentalPeriodFormProps) {
             id="endDate"
             type="date"
             value={endDate}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+              setError("");
+            }}
             required
             className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
           />
@@ -85,7 +117,9 @@ function RentalPeriodForm({ onSubmit }: RentalPeriodFormProps) {
             id="description"
             type="text"
             value={description}
-            onChange={(event) => setDescription(event.target.value)}
+            onChange={(event) =>
+              setDescription(event.target.value)
+            }
             placeholder="e.g. Rent for September 2026"
             className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
           />

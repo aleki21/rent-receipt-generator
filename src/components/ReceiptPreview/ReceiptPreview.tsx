@@ -3,13 +3,31 @@ import { PDFDownloadLink, pdf } from "@react-pdf/renderer";
 import type { Receipt } from "../../types/receipt";
 import { formatDate } from "../../utils/date";
 import ReceiptPDF from "../ReceiptPDF/ReceiptPDF";
+import { finalizeReceipt } from "../../services/receiptService";
 
 interface ReceiptPreviewProps {
   receipt: Receipt;
 }
 
 function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
+  const [finalReceipt, setFinalReceipt] =
+    useState<Receipt | null>(null);
+
   const [isSharing, setIsSharing] = useState(false);
+
+  const currentReceipt = finalReceipt ?? receipt;
+
+  function handleFinalize() {
+    if (finalReceipt) {
+      return finalReceipt;
+    }
+
+    const finalized = finalizeReceipt(receipt);
+
+    setFinalReceipt(finalized);
+
+    return finalized;
+  }
 
   async function handleShare() {
     if (!navigator.share) {
@@ -22,11 +40,13 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
     try {
       setIsSharing(true);
 
+      const receiptToShare = handleFinalize();
+
       const blob = await pdf(
-        <ReceiptPDF receipt={receipt} />
+        <ReceiptPDF receipt={receiptToShare} />
       ).toBlob();
 
-      const fileName = `${receipt.receiptNumber}-${receipt.payment.payerName.replace(
+      const fileName = `${receiptToShare.receiptNumber}-${receiptToShare.payment.payerName.replace(
         /\s+/g,
         "-"
       )}.pdf`;
@@ -46,8 +66,8 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
       }
 
       await navigator.share({
-        title: `Rent Receipt ${receipt.receiptNumber}`,
-        text: `Rent payment receipt for ${receipt.payment.payerName}`,
+        title: `Rent Receipt ${receiptToShare.receiptNumber}`,
+        text: `Rent payment receipt for ${receiptToShare.payment.payerName}`,
         files: [file],
       });
     } catch (error) {
@@ -74,7 +94,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
         {/* Receipt Header */}
         <div className="border-b px-8 py-8 text-center">
           <h2 className="text-2xl font-bold tracking-tight">
-            {receipt.landlord.businessName}
+            {currentReceipt.landlord.businessName}
           </h2>
 
           <p className="mt-2 text-sm font-semibold tracking-widest text-gray-500">
@@ -96,7 +116,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
             </p>
 
             <p className="mt-1 font-semibold">
-              {receipt.receiptNumber}
+              {currentReceipt.receiptNumber}
             </p>
           </div>
 
@@ -106,7 +126,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
             </p>
 
             <p className="mt-1 font-semibold">
-              {formatDate(receipt.issueDate)}
+              {formatDate(currentReceipt.issueDate)}
             </p>
           </div>
         </div>
@@ -119,22 +139,22 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
 
           <div className="mt-3 space-y-1 text-sm">
             <p className="font-medium">
-              {receipt.landlord.businessName}
+              {currentReceipt.landlord.businessName}
             </p>
 
             <p className="text-gray-600">
-              {receipt.landlord.phoneNumber}
+              {currentReceipt.landlord.phoneNumber}
             </p>
 
-            {receipt.landlord.address && (
+            {currentReceipt.landlord.address && (
               <p className="text-gray-600">
-                {receipt.landlord.address}
+                {currentReceipt.landlord.address}
               </p>
             )}
 
-            {receipt.landlord.email && (
+            {currentReceipt.landlord.email && (
               <p className="text-gray-600">
-                {receipt.landlord.email}
+                {currentReceipt.landlord.email}
               </p>
             )}
           </div>
@@ -148,11 +168,11 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
 
           <div className="mt-3 space-y-1 text-sm">
             <p className="font-medium">
-              {receipt.payment.payerName}
+              {currentReceipt.payment.payerName}
             </p>
 
             <p className="text-gray-600">
-              {receipt.payment.phoneNumber}
+              {currentReceipt.payment.phoneNumber}
             </p>
           </div>
         </div>
@@ -171,7 +191,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
 
               <span className="font-semibold">
                 Ksh{" "}
-                {receipt.payment.amount.toLocaleString(
+                {currentReceipt.payment.amount.toLocaleString(
                   "en-KE",
                   {
                     minimumFractionDigits: 2,
@@ -186,7 +206,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
               </span>
 
               <span className="text-sm font-medium">
-                {receipt.paymentMethod}
+                {currentReceipt.paymentMethod}
               </span>
             </div>
 
@@ -196,7 +216,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
               </span>
 
               <span className="text-sm font-medium">
-                {receipt.payment.transactionCode}
+                {currentReceipt.payment.transactionCode}
               </span>
             </div>
 
@@ -206,7 +226,9 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
               </span>
 
               <span className="text-sm font-medium">
-                {formatDate(receipt.payment.paymentDate)}
+                {formatDate(
+                  currentReceipt.payment.paymentDate
+                )}
               </span>
             </div>
 
@@ -216,7 +238,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
               </span>
 
               <span className="text-sm font-medium">
-                {receipt.payment.paymentTime}
+                {currentReceipt.payment.paymentTime}
               </span>
             </div>
           </div>
@@ -237,7 +259,7 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
 
                 <p className="mt-1 text-sm font-medium">
                   {formatDate(
-                    receipt.rentalPeriod.startDate
+                    currentReceipt.rentalPeriod.startDate
                   )}
                 </p>
               </div>
@@ -249,15 +271,15 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
 
                 <p className="mt-1 text-sm font-medium">
                   {formatDate(
-                    receipt.rentalPeriod.endDate
+                    currentReceipt.rentalPeriod.endDate
                   )}
                 </p>
               </div>
             </div>
 
-            {receipt.rentalPeriod.description && (
+            {currentReceipt.rentalPeriod.description && (
               <p className="mt-4 border-t pt-4 text-sm text-gray-600">
-                {receipt.rentalPeriod.description}
+                {currentReceipt.rentalPeriod.description}
               </p>
             )}
           </div>
@@ -279,11 +301,16 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
       {/* Actions */}
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <PDFDownloadLink
-          document={<ReceiptPDF receipt={receipt} />}
-          fileName={`${receipt.receiptNumber}-${receipt.payment.payerName.replace(
+          document={
+            <ReceiptPDF
+              receipt={currentReceipt}
+            />
+          }
+          fileName={`${currentReceipt.receiptNumber}-${currentReceipt.payment.payerName.replace(
             /\s+/g,
             "-"
           )}.pdf`}
+          onClick={handleFinalize}
           className="rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
         >
           Download PDF

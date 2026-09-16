@@ -3,6 +3,7 @@ import MpesaInput from "./components/MpesaInput/MpesaInput";
 import PaymentDetails from "./components/PaymentDetails/PaymentDetails";
 import RentalPeriodForm from "./components/RentalPeriodForm/RentalPeriodForm";
 import ReceiptPreview from "./components/ReceiptPreview/ReceiptPreview";
+import ProgressIndicator from "./components/ProgressIndicator/ProgressIndicator";
 import Settings from "./components/Settings/Settings";
 import type {
   LandlordSettings,
@@ -99,7 +100,9 @@ function App() {
 
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 sm:py-10">
-      <div className="mx-auto w-full max-w-4xl">
+      <div className="mx-auto max-w-4xl">
+        <ProgressIndicator currentStep={step} />
+
         <header className="mb-8 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -119,9 +122,7 @@ function App() {
             }
             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium sm:w-auto"
           >
-            {showSettings
-              ? "Close Settings"
-              : "Settings"}
+            {showSettings ? "Close Settings" : "Settings"}
           </button>
         </header>
 

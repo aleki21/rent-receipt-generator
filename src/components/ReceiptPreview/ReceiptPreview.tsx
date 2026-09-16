@@ -1,6 +1,7 @@
+import { useState } from "react";
+import { PDFDownloadLink, pdf } from "@react-pdf/renderer";
 import type { Receipt } from "../../types/receipt";
 import { formatDate } from "../../utils/date";
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import ReceiptPDF from "../ReceiptPDF/ReceiptPDF";
 
 interface ReceiptPreviewProps {
@@ -8,6 +9,65 @@ interface ReceiptPreviewProps {
 }
 
 function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
+  const [isSharing, setIsSharing] = useState(false);
+
+  async function handleShare() {
+    if (!navigator.share) {
+      alert(
+        "Sharing is not supported on this device. Please download the PDF instead."
+      );
+      return;
+    }
+
+    try {
+      setIsSharing(true);
+
+      const blob = await pdf(
+        <ReceiptPDF receipt={receipt} />
+      ).toBlob();
+
+      const fileName = `${receipt.receiptNumber}-${receipt.payment.payerName.replace(
+        /\s+/g,
+        "-"
+      )}.pdf`;
+
+      const file = new File([blob], fileName, {
+        type: "application/pdf",
+      });
+
+      if (
+        navigator.canShare &&
+        !navigator.canShare({ files: [file] })
+      ) {
+        alert(
+          "This device cannot share PDF files. Please download the PDF instead."
+        );
+        return;
+      }
+
+      await navigator.share({
+        title: `Rent Receipt ${receipt.receiptNumber}`,
+        text: `Rent payment receipt for ${receipt.payment.payerName}`,
+        files: [file],
+      });
+    } catch (error) {
+      if (
+        error instanceof DOMException &&
+        error.name === "AbortError"
+      ) {
+        return;
+      }
+
+      console.error("Failed to share receipt:", error);
+
+      alert(
+        "We couldn't share the receipt. Please download the PDF instead."
+      );
+    } finally {
+      setIsSharing(false);
+    }
+  }
+
   return (
     <section className="mt-8 w-full max-w-2xl">
       <div className="rounded-xl bg-white shadow-sm">
@@ -215,20 +275,29 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
           </p>
         </div>
       </div>
-      
-      <div className="mt-6">
+
+      {/* Actions */}
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <PDFDownloadLink
-            document={<ReceiptPDF receipt={receipt} />}
-            fileName={`${receipt.receiptNumber}-${receipt.payment.payerName.replace(
+          document={<ReceiptPDF receipt={receipt} />}
+          fileName={`${receipt.receiptNumber}-${receipt.payment.payerName.replace(
             /\s+/g,
             "-"
-            )}.pdf`}
-            className="block w-full rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
+          )}.pdf`}
+          className="rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
         >
-            Download PDF
+          Download PDF
         </PDFDownloadLink>
+
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={isSharing}
+          className="rounded-lg border border-gray-300 bg-white px-5 py-3 font-medium disabled:opacity-50"
+        >
+          {isSharing ? "Preparing PDF..." : "Share PDF"}
+        </button>
       </div>
-      
     </section>
   );
 }

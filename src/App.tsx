@@ -10,18 +10,19 @@ import type {
   Receipt,
 } from "./types/receipt";
 import type { ParseResult } from "./services/mpesaParser";
+import type { ReceiptStep } from "./types/workflow";
 import { getToday } from "./utils/date";
 import {
   getLandlordSettings,
   saveLandlordSettings,
 } from "./utils/settings";
 
-
 function App() {
+  const [step, setStep] =
+    useState<ReceiptStep>("input");
+
   const [parseResult, setParseResult] =
     useState<ParseResult | null>(null);
-
-  const [confirmed, setConfirmed] = useState(false);
 
   const [, setRentalPeriod] =
     useState<RentalPeriod | null>(null);
@@ -39,17 +40,22 @@ function App() {
 
   function handleParsed(result: ParseResult) {
     setParseResult(result);
-    setConfirmed(false);
     setRentalPeriod(null);
     setReceipt(null);
+
+    if (result.success) {
+      setStep("payment-confirmation");
+    } else {
+      setStep("input");
+    }
   }
 
   function handleConfirm() {
-    setConfirmed(true);
+    setStep("rental-period");
   }
 
   function handleEdit() {
-    setConfirmed(false);
+    setStep("input");
   }
 
   function handleRentalPeriodSubmit(
@@ -68,6 +74,7 @@ function App() {
       };
 
       setReceipt(newReceipt);
+      setStep("preview");
     }
   }
 
@@ -116,37 +123,46 @@ function App() {
           />
         )}
 
-        <MpesaInput onParsed={handleParsed} />
+        {step === "input" && (
+          <>
+            <MpesaInput onParsed={handleParsed} />
 
-        {payment && !confirmed && (
-          <PaymentDetails
-            payment={payment}
-            onConfirm={handleConfirm}
-            onEdit={handleEdit}
-          />
+            {parseResult &&
+              !parseResult.success && (
+                <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-5">
+                  <h2 className="font-semibold text-red-800">
+                    We couldn't process this message
+                  </h2>
+
+                  <ul className="mt-3 list-disc pl-5 text-red-700">
+                    {parseResult.errors.map(
+                      (error) => (
+                        <li key={error}>{error}</li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              )}
+          </>
         )}
 
-        {parseResult && !parseResult.success && (
-          <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-5">
-            <h2 className="font-semibold text-red-800">
-              We couldn't process this message
-            </h2>
+        {step === "payment-confirmation" &&
+          payment && (
+            <PaymentDetails
+              payment={payment}
+              onConfirm={handleConfirm}
+              onEdit={handleEdit}
+            />
+          )}
 
-            <ul className="mt-3 list-disc pl-5 text-red-700">
-              {parseResult.errors.map((error) => (
-                <li key={error}>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {step === "rental-period" &&
+          payment && (
+            <RentalPeriodForm
+              onSubmit={handleRentalPeriodSubmit}
+            />
+          )}
 
-        {confirmed && payment && (
-          <RentalPeriodForm
-            onSubmit={handleRentalPeriodSubmit}
-          />
-        )}
-
-        {receipt && (
+        {step === "preview" && receipt && (
           <ReceiptPreview receipt={receipt} />
         )}
       </div>

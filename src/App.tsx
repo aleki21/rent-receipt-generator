@@ -17,6 +17,7 @@ import {
   saveLandlordSettings,
 } from "./utils/settings";
 
+
 function App() {
   const [parseResult, setParseResult] =
     useState<ParseResult | null>(null);

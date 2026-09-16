@@ -19,6 +19,12 @@ import {
   saveLandlordSettings,
 } from "./utils/settings";
 
+const EMPTY_SETTINGS: LandlordSettings = {
+  businessName: "",
+  phoneNumber: "",
+  receiptPrefix: "REC",
+};
+
 function App() {
   const [step, setStep] =
     useState<ReceiptStep>("input");
@@ -34,22 +40,36 @@ function App() {
 
   const [landlord, setLandlord] =
     useState<LandlordSettings>(
-      getLandlordSettings()
+      () =>
+        getLandlordSettings() ??
+        EMPTY_SETTINGS
     );
 
   const [showSettings, setShowSettings] =
     useState(false);
+
+  const isSettingsConfigured =
+    Boolean(
+      landlord.businessName.trim() &&
+        landlord.phoneNumber.trim()
+    );
 
   function handleParsed(result: ParseResult) {
     setParseResult(result);
     setRentalPeriod(null);
     setReceipt(null);
 
-    if (result.success) {
-      setStep("payment-confirmation");
-    } else {
+    if (!result.success) {
       setStep("input");
+      return;
     }
+
+    if (!isSettingsConfigured) {
+      setShowSettings(true);
+      return;
+    }
+
+    setStep("payment-confirmation");
   }
 
   function handleConfirm(
@@ -97,6 +117,13 @@ function App() {
     saveLandlordSettings(settings);
     setLandlord(settings);
     setShowSettings(false);
+
+    if (
+      parseResult?.success &&
+      parseResult.data
+    ) {
+      setStep("payment-confirmation");
+    }
   }
 
   function handleStartOver() {
@@ -113,7 +140,9 @@ function App() {
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-4xl">
-        <ProgressIndicator currentStep={step} />
+        <ProgressIndicator
+          currentStep={step}
+        />
 
         <header className="mb-8 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -122,8 +151,8 @@ function App() {
             </h1>
 
             <p className="mt-2 max-w-xl text-sm leading-6 text-gray-600 sm:text-base">
-              Generate a rental payment receipt from an
-              M-Pesa confirmation.
+              Generate a rental payment receipt
+              from an M-Pesa confirmation.
             </p>
           </div>
 
@@ -139,6 +168,32 @@ function App() {
               : "Settings"}
           </button>
         </header>
+
+        {!isSettingsConfigured &&
+          !showSettings && (
+            <div className="mb-8 rounded-lg border border-yellow-200 bg-yellow-50 p-4 sm:p-5">
+              <h2 className="font-semibold text-yellow-800">
+                Set up your landlord details
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-yellow-700">
+                Before generating a receipt,
+                configure the landlord or business
+                information that should appear on
+                the receipt.
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowSettings(true)
+                }
+                className="mt-4 rounded-lg bg-black px-4 py-3 text-sm font-medium text-white"
+              >
+                Configure Settings
+              </button>
+            </div>
+          )}
 
         {showSettings && (
           <Settings
@@ -157,7 +212,8 @@ function App() {
               !parseResult.success && (
                 <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-4 sm:p-5">
                   <h2 className="font-semibold text-red-800">
-                    We couldn't process this message
+                    We couldn't process this
+                    message
                   </h2>
 
                   <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6 text-red-700">

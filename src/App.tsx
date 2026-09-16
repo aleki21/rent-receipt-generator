@@ -2,18 +2,40 @@ import { useState } from "react";
 import MpesaInput from "./components/MpesaInput/MpesaInput";
 import PaymentDetails from "./components/PaymentDetails/PaymentDetails";
 import RentalPeriodForm from "./components/RentalPeriodForm/RentalPeriodForm";
-import type { RentalPeriod } from "./types/receipt";
+import ReceiptPreview from "./components/ReceiptPreview/ReceiptPreview";
+import type {
+  LandlordSettings,
+  RentalPeriod,
+  Receipt,
+} from "./types/receipt";
 import type { ParseResult } from "./services/mpesaParser";
+import { getNextReceiptNumber } from "./utils/receiptNumber";
+import { getToday } from "./utils/date";
 
 function App() {
-  const [parseResult, setParseResult] = useState<ParseResult | null>(null);
+  const [parseResult, setParseResult] =
+    useState<ParseResult | null>(null);
+
   const [confirmed, setConfirmed] = useState(false);
-  const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod | null>(null);
+
+  const [, setRentalPeriod] =
+    useState<RentalPeriod | null>(null);
+
+  const [receipt, setReceipt] =
+    useState<Receipt | null>(null);
+
+  const landlord: LandlordSettings = {
+    businessName: "Alex Rentals",
+    phoneNumber: "0712345678",
+    address: "Nairobi, Kenya",
+    receiptPrefix: "REC",
+  };
 
   function handleParsed(result: ParseResult) {
     setParseResult(result);
     setConfirmed(false);
     setRentalPeriod(null);
+    setReceipt(null);
   }
 
   function handleConfirm() {
@@ -26,6 +48,21 @@ function App() {
 
   function handleRentalPeriodSubmit(period: RentalPeriod) {
     setRentalPeriod(period);
+
+    if (parseResult?.success && parseResult.data) {
+      const newReceipt: Receipt = {
+        receiptNumber: getNextReceiptNumber(
+          landlord.receiptPrefix
+        ),
+        issueDate: getToday(),
+        payment: parseResult.data,
+        rentalPeriod: period,
+        landlord,
+        paymentMethod: "M-PESA",
+      };
+
+      setReceipt(newReceipt);
+    }
   }
 
   const payment = parseResult?.success
@@ -41,7 +78,8 @@ function App() {
           </h1>
 
           <p className="mt-2 text-gray-600">
-            Generate a rental payment receipt from an M-Pesa confirmation.
+            Generate a rental payment receipt from an M-Pesa
+            confirmation.
           </p>
         </header>
 
@@ -75,22 +113,8 @@ function App() {
           />
         )}
 
-        {rentalPeriod && (
-          <div className="mt-8 rounded-lg bg-green-50 p-5">
-            <p className="font-medium text-green-800">
-              Rental period saved.
-            </p>
-
-            <p className="mt-2">
-              {rentalPeriod.startDate} → {rentalPeriod.endDate}
-            </p>
-
-            {rentalPeriod.description && (
-              <p className="mt-1">
-                {rentalPeriod.description}
-              </p>
-            )}
-          </div>
+        {receipt && (
+          <ReceiptPreview receipt={receipt} />
         )}
       </div>
     </main>

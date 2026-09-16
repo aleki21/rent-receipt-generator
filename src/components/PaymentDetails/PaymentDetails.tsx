@@ -1,8 +1,9 @@
+import { useState } from "react";
 import type { PaymentDetails as PaymentDetailsType } from "../../types/receipt";
 
 interface PaymentDetailsProps {
   payment: PaymentDetailsType;
-  onConfirm: () => void;
+  onConfirm: (payment: PaymentDetailsType) => void;
   onEdit: () => void;
 }
 
@@ -11,78 +12,227 @@ function PaymentDetails({
   onConfirm,
   onEdit,
 }: PaymentDetailsProps) {
+  const [transactionCode, setTransactionCode] =
+    useState(payment.transactionCode);
+
+  const [amount, setAmount] = useState(
+    String(payment.amount)
+  );
+
+  const [payerName, setPayerName] = useState(
+    payment.payerName
+  );
+
+  const [phoneNumber, setPhoneNumber] = useState(
+    payment.phoneNumber
+  );
+
+  const [paymentDate, setPaymentDate] = useState(
+    payment.paymentDate
+  );
+
+  const [paymentTime, setPaymentTime] = useState(
+    payment.paymentTime
+  );
+
+  const [error, setError] = useState("");
+
+  function handleConfirm() {
+    setError("");
+
+    const numericAmount = Number(amount);
+
+    if (!transactionCode.trim()) {
+      setError("Please enter the transaction code.");
+      return;
+    }
+
+    if (
+      !Number.isFinite(numericAmount) ||
+      numericAmount <= 0
+    ) {
+      setError("Please enter a valid payment amount.");
+      return;
+    }
+
+    if (!payerName.trim()) {
+      setError("Please enter the payer name.");
+      return;
+    }
+
+    if (!phoneNumber.trim()) {
+      setError("Please enter the payer phone number.");
+      return;
+    }
+
+    if (!paymentDate.trim()) {
+      setError("Please enter the payment date.");
+      return;
+    }
+
+    if (!paymentTime.trim()) {
+      setError("Please enter the payment time.");
+      return;
+    }
+
+    const updatedPayment: PaymentDetailsType = {
+      transactionCode:
+        transactionCode.trim().toUpperCase(),
+      amount: numericAmount,
+      payerName: payerName.trim(),
+      phoneNumber: phoneNumber.trim(),
+      paymentDate: paymentDate.trim(),
+      paymentTime: paymentTime.trim(),
+    };
+
+    onConfirm(updatedPayment);
+  }
+
   return (
     <section className="mt-8 w-full max-w-2xl rounded-xl bg-white p-5 shadow-sm sm:p-6">
       <h2 className="text-lg font-semibold sm:text-xl">
-        Payment Details
+        Confirm Payment Details
       </h2>
 
       <p className="mt-2 text-sm leading-6 text-gray-600">
-        Review the payment information extracted from the M-Pesa message.
+        Check the extracted information and correct
+        anything that is inaccurate.
       </p>
 
-      <div className="mt-6 divide-y rounded-lg border">
-        <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <p className="text-sm text-gray-500">
+      {error && (
+        <div
+          role="alert"
+          className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4"
+        >
+          <p className="text-sm font-medium leading-6 text-red-700">
+            {error}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-6 space-y-5">
+        <div>
+          <label
+            htmlFor="transactionCode"
+            className="block text-sm font-medium"
+          >
             Transaction Code
-          </p>
+          </label>
 
-          <p className="break-all font-medium">
-            {payment.transactionCode}
-          </p>
+          <input
+            id="transactionCode"
+            type="text"
+            value={transactionCode}
+            onChange={(event) => {
+              setTransactionCode(event.target.value);
+              setError("");
+            }}
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm uppercase outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
+          />
         </div>
 
-        <div className="flex flex-col gap-1 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <p className="text-sm text-gray-500">
+        <div>
+          <label
+            htmlFor="amount"
+            className="block text-sm font-medium"
+          >
             Amount
-          </p>
+          </label>
 
-          <p className="text-xl font-bold sm:text-lg">
-            Ksh{" "}
-            {payment.amount.toLocaleString("en-KE", {
-              minimumFractionDigits: 2,
-            })}
-          </p>
+          <input
+            id="amount"
+            type="number"
+            min="0.01"
+            step="0.01"
+            value={amount}
+            onChange={(event) => {
+              setAmount(event.target.value);
+              setError("");
+            }}
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
+          />
         </div>
 
-        <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <p className="text-sm text-gray-500">
-            Paid By
-          </p>
+        <div>
+          <label
+            htmlFor="payerName"
+            className="block text-sm font-medium"
+          >
+            Payer Name
+          </label>
 
-          <p className="break-words font-medium">
-            {payment.payerName}
-          </p>
+          <input
+            id="payerName"
+            type="text"
+            value={payerName}
+            onChange={(event) => {
+              setPayerName(event.target.value);
+              setError("");
+            }}
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
+          />
         </div>
 
-        <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <p className="text-sm text-gray-500">
-            Phone
-          </p>
+        <div>
+          <label
+            htmlFor="phoneNumber"
+            className="block text-sm font-medium"
+          >
+            Phone Number
+          </label>
 
-          <p className="font-medium">
-            {payment.phoneNumber}
-          </p>
+          <input
+            id="phoneNumber"
+            type="tel"
+            value={phoneNumber}
+            onChange={(event) => {
+              setPhoneNumber(event.target.value);
+              setError("");
+            }}
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
+          />
         </div>
 
-        <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <p className="text-sm text-gray-500">
-            Date
-          </p>
+        <div>
+          <label
+            htmlFor="paymentDate"
+            className="block text-sm font-medium"
+          >
+            Payment Date
+          </label>
 
-          <p className="font-medium">
-            {payment.paymentDate}
-          </p>
+          <input
+            id="paymentDate"
+            type="text"
+            value={paymentDate}
+            onChange={(event) => {
+              setPaymentDate(event.target.value);
+              setError("");
+            }}
+            placeholder="e.g. 14/9/26"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
+          />
         </div>
 
-        <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <p className="text-sm text-gray-500">
-            Time
-          </p>
+        <div>
+          <label
+            htmlFor="paymentTime"
+            className="block text-sm font-medium"
+          >
+            Payment Time
+          </label>
 
-          <p className="font-medium">
-            {payment.paymentTime}
-          </p>
+          <input
+            id="paymentTime"
+            type="text"
+            value={paymentTime}
+            onChange={(event) => {
+              setPaymentTime(event.target.value);
+              setError("");
+            }}
+            placeholder="e.g. 10:42 AM"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
+          />
         </div>
       </div>
 
@@ -96,12 +246,12 @@ function PaymentDetails({
           onClick={onEdit}
           className="w-full rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium"
         >
-          Edit
+          Back to Message
         </button>
 
         <button
           type="button"
-          onClick={onConfirm}
+          onClick={handleConfirm}
           className="w-full rounded-lg bg-black px-5 py-3.5 text-sm font-medium text-white"
         >
           Confirm & Continue

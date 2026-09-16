@@ -7,6 +7,7 @@ import ProgressIndicator from "./components/ProgressIndicator/ProgressIndicator"
 import Settings from "./components/Settings/Settings";
 import type {
   LandlordSettings,
+  PaymentDetails as PaymentDetailsType,
   RentalPeriod,
   Receipt,
 } from "./types/receipt";
@@ -51,7 +52,15 @@ function App() {
     }
   }
 
-  function handleConfirm() {
+  function handleConfirm(
+    updatedPayment: PaymentDetailsType
+  ) {
+    setParseResult({
+      success: true,
+      data: updatedPayment,
+      errors: [],
+    });
+
     setStep("rental-period");
   }
 
@@ -64,7 +73,10 @@ function App() {
   ) {
     setRentalPeriod(period);
 
-    if (parseResult?.success && parseResult.data) {
+    if (
+      parseResult?.success &&
+      parseResult.data
+    ) {
       const newReceipt: Receipt = {
         receiptNumber: "DRAFT",
         issueDate: getToday(),
@@ -122,7 +134,9 @@ function App() {
             }
             className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium sm:w-auto"
           >
-            {showSettings ? "Close Settings" : "Settings"}
+            {showSettings
+              ? "Close Settings"
+              : "Settings"}
           </button>
         </header>
 
@@ -135,7 +149,9 @@ function App() {
 
         {step === "input" && (
           <>
-            <MpesaInput onParsed={handleParsed} />
+            <MpesaInput
+              onParsed={handleParsed}
+            />
 
             {parseResult &&
               !parseResult.success && (
@@ -147,7 +163,9 @@ function App() {
                   <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6 text-red-700">
                     {parseResult.errors.map(
                       (error) => (
-                        <li key={error}>{error}</li>
+                        <li key={error}>
+                          {error}
+                        </li>
                       )
                     )}
                   </ul>
@@ -168,7 +186,9 @@ function App() {
         {step === "rental-period" &&
           payment && (
             <RentalPeriodForm
-              onSubmit={handleRentalPeriodSubmit}
+              onSubmit={
+                handleRentalPeriodSubmit
+              }
             />
           )}
 

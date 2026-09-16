@@ -1,9 +1,28 @@
 import { useState } from "react";
 import MpesaInput from "./components/MpesaInput/MpesaInput";
+import PaymentDetails from "./components/PaymentDetails/PaymentDetails";
 import type { ParseResult } from "./services/mpesaParser";
 
 function App() {
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+
+  function handleParsed(result: ParseResult) {
+    setParseResult(result);
+    setConfirmed(false);
+  }
+
+  function handleConfirm() {
+    setConfirmed(true);
+  }
+
+  function handleEdit() {
+    setConfirmed(false);
+  }
+
+  const payment = parseResult?.success
+    ? parseResult.data
+    : undefined;
 
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-10">
@@ -18,12 +37,36 @@ function App() {
           </p>
         </header>
 
-        <MpesaInput onParsed={setParseResult} />
+        <MpesaInput onParsed={handleParsed} />
 
-        {parseResult && (
-          <pre className="mt-8 overflow-auto rounded-lg bg-white p-5">
-            {JSON.stringify(parseResult, null, 2)}
-          </pre>
+        {payment && !confirmed && (
+          <PaymentDetails
+            payment={payment}
+            onConfirm={handleConfirm}
+            onEdit={handleEdit}
+          />
+        )}
+
+        {parseResult && !parseResult.success && (
+          <div className="mt-8 rounded-lg border border-red-200 bg-red-50 p-5">
+            <h2 className="font-semibold text-red-800">
+              We couldn't process this message
+            </h2>
+
+            <ul className="mt-3 list-disc pl-5 text-red-700">
+              {parseResult.errors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {confirmed && (
+          <div className="mt-8 rounded-lg bg-green-50 p-5">
+            <p className="font-medium text-green-800">
+              Payment details confirmed.
+            </p>
+          </div>
         )}
       </div>
     </main>

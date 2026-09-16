@@ -6,7 +6,10 @@ interface SettingsProps {
   onSave: (settings: LandlordSettings) => void;
 }
 
-function Settings({ settings, onSave }: SettingsProps) {
+function Settings({
+  settings,
+  onSave,
+}: SettingsProps) {
   const [businessName, setBusinessName] = useState(
     settings.businessName
   );
@@ -45,12 +48,12 @@ function Settings({ settings, onSave }: SettingsProps) {
   }
 
   return (
-    <section className="mt-8 w-full max-w-2xl rounded-xl bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-semibold">
+    <section className="mt-8 w-full max-w-2xl rounded-xl bg-white p-5 shadow-sm sm:p-6">
+      <h2 className="text-lg font-semibold sm:text-xl">
         Landlord Settings
       </h2>
 
-      <p className="mt-2 text-gray-600">
+      <p className="mt-2 text-sm leading-6 text-gray-600">
         These details will appear on your receipts.
       </p>
 
@@ -74,7 +77,7 @@ function Settings({ settings, onSave }: SettingsProps) {
               setBusinessName(event.target.value)
             }
             required
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
         </div>
 
@@ -94,7 +97,7 @@ function Settings({ settings, onSave }: SettingsProps) {
               setPhoneNumber(event.target.value)
             }
             required
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
         </div>
 
@@ -104,6 +107,9 @@ function Settings({ settings, onSave }: SettingsProps) {
             className="block text-sm font-medium"
           >
             Email
+            <span className="ml-1 font-normal text-gray-500">
+              (optional)
+            </span>
           </label>
 
           <input
@@ -113,7 +119,8 @@ function Settings({ settings, onSave }: SettingsProps) {
             onChange={(event) =>
               setEmail(event.target.value)
             }
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            placeholder="example@email.com"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
         </div>
 
@@ -123,6 +130,9 @@ function Settings({ settings, onSave }: SettingsProps) {
             className="block text-sm font-medium"
           >
             Address
+            <span className="ml-1 font-normal text-gray-500">
+              (optional)
+            </span>
           </label>
 
           <input
@@ -132,7 +142,8 @@ function Settings({ settings, onSave }: SettingsProps) {
             onChange={(event) =>
               setAddress(event.target.value)
             }
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            placeholder="e.g. Nairobi, Kenya"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
         </div>
 
@@ -152,13 +163,17 @@ function Settings({ settings, onSave }: SettingsProps) {
               setReceiptPrefix(event.target.value)
             }
             placeholder="REC"
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm uppercase outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
+
+          <p className="mt-2 text-xs leading-5 text-gray-500">
+            Example: REC-00001
+          </p>
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
+          className="w-full rounded-lg bg-black px-5 py-3.5 text-sm font-medium text-white"
         >
           Save Settings
         </button>

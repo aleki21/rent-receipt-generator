@@ -3,6 +3,7 @@ import MpesaInput from "./components/MpesaInput/MpesaInput";
 import PaymentDetails from "./components/PaymentDetails/PaymentDetails";
 import RentalPeriodForm from "./components/RentalPeriodForm/RentalPeriodForm";
 import ReceiptPreview from "./components/ReceiptPreview/ReceiptPreview";
+import Settings from "./components/Settings/Settings";
 import type {
   LandlordSettings,
   RentalPeriod,
@@ -11,6 +12,10 @@ import type {
 import type { ParseResult } from "./services/mpesaParser";
 import { getNextReceiptNumber } from "./utils/receiptNumber";
 import { getToday } from "./utils/date";
+import {
+  getLandlordSettings,
+  saveLandlordSettings,
+} from "./utils/settings";
 
 function App() {
   const [parseResult, setParseResult] =
@@ -24,12 +29,13 @@ function App() {
   const [receipt, setReceipt] =
     useState<Receipt | null>(null);
 
-  const landlord: LandlordSettings = {
-    businessName: "Alex Rentals",
-    phoneNumber: "0712345678",
-    address: "Nairobi, Kenya",
-    receiptPrefix: "REC",
-  };
+  const [landlord, setLandlord] =
+    useState<LandlordSettings>(
+      getLandlordSettings()
+    );
+
+  const [showSettings, setShowSettings] =
+    useState(false);
 
   function handleParsed(result: ParseResult) {
     setParseResult(result);
@@ -46,7 +52,9 @@ function App() {
     setConfirmed(false);
   }
 
-  function handleRentalPeriodSubmit(period: RentalPeriod) {
+  function handleRentalPeriodSubmit(
+    period: RentalPeriod
+  ) {
     setRentalPeriod(period);
 
     if (parseResult?.success && parseResult.data) {
@@ -65,6 +73,14 @@ function App() {
     }
   }
 
+  function handleSaveSettings(
+    settings: LandlordSettings
+  ) {
+    saveLandlordSettings(settings);
+    setLandlord(settings);
+    setShowSettings(false);
+  }
+
   const payment = parseResult?.success
     ? parseResult.data
     : undefined;
@@ -72,16 +88,35 @@ function App() {
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-10">
       <div className="mx-auto max-w-4xl">
-        <header className="mb-10">
-          <h1 className="text-3xl font-bold">
-            M-Pesa Rent Receipt Generator
-          </h1>
+        <header className="mb-10 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">
+              M-Pesa Rent Receipt Generator
+            </h1>
 
-          <p className="mt-2 text-gray-600">
-            Generate a rental payment receipt from an M-Pesa
-            confirmation.
-          </p>
+            <p className="mt-2 text-gray-600">
+              Generate a rental payment receipt from an
+              M-Pesa confirmation.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              setShowSettings(!showSettings)
+            }
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium"
+          >
+            Settings
+          </button>
         </header>
+
+        {showSettings && (
+          <Settings
+            settings={landlord}
+            onSave={handleSaveSettings}
+          />
+        )}
 
         <MpesaInput onParsed={handleParsed} />
 

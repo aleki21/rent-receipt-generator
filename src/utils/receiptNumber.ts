@@ -3,34 +3,51 @@ const STORAGE_KEY = "receipt_number";
 export function getNextReceiptNumber(
   prefix: string
 ): string {
-  const storedValue = localStorage.getItem(
-    STORAGE_KEY
-  );
+  const normalizedPrefix =
+    prefix.trim().toUpperCase() || "REC";
 
-  const currentNumber = Number(storedValue);
+  const storedValue =
+    localStorage.getItem(STORAGE_KEY);
 
-  const safeCurrentNumber =
-    Number.isFinite(currentNumber) && currentNumber >= 0
-      ? currentNumber
-      : 0;
+  let currentNumber = 0;
 
-  const nextNumber = safeCurrentNumber + 1;
+  if (storedValue) {
+    try {
+      const storedData = JSON.parse(storedValue);
 
-  return `${prefix}-${String(nextNumber).padStart(5, "0")}`;
+      if (
+        storedData &&
+        typeof storedData === "object" &&
+        storedData.prefix === normalizedPrefix &&
+        Number.isFinite(storedData.number)
+      ) {
+        currentNumber = storedData.number;
+      }
+    } catch {
+      currentNumber = 0;
+    }
+  }
+
+  const nextNumber = currentNumber + 1;
+
+  return `${normalizedPrefix}-${String(
+    nextNumber
+  ).padStart(5, "0")}`;
 }
 
 export function saveReceiptNumber(
   receiptNumber: string
 ): void {
   const match = receiptNumber.match(
-    /(\d+)$/
+    /^(.+)-(\d+)$/
   );
 
   if (!match) {
     return;
   }
 
-  const number = Number(match[1]);
+  const prefix = match[1];
+  const number = Number(match[2]);
 
   if (!Number.isFinite(number)) {
     return;
@@ -38,6 +55,9 @@ export function saveReceiptNumber(
 
   localStorage.setItem(
     STORAGE_KEY,
-    String(number)
+    JSON.stringify({
+      prefix,
+      number,
+    })
   );
 }

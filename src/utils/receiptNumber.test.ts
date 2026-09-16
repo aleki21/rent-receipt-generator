@@ -38,18 +38,34 @@ describe("receipt number utilities", () => {
   });
 
   it("supports different receipt prefixes", () => {
+    saveReceiptNumber("REC-00025");
+
     const receiptNumber =
       getNextReceiptNumber("RENT");
 
     expect(receiptNumber).toBe("RENT-00001");
   });
 
-  it("extracts the number from a saved receipt", () => {
+  it("continues the correct prefix sequence", () => {
     saveReceiptNumber("RENT-00125");
 
     const receiptNumber =
       getNextReceiptNumber("RENT");
 
     expect(receiptNumber).toBe("RENT-00126");
+  });
+
+  it("normalizes the receipt prefix", () => {
+    const receiptNumber =
+      getNextReceiptNumber("rent");
+
+    expect(receiptNumber).toBe("RENT-00001");
+  });
+
+  it("uses REC when the prefix is empty", () => {
+    const receiptNumber =
+      getNextReceiptNumber("");
+
+    expect(receiptNumber).toBe("REC-00001");
   });
 });

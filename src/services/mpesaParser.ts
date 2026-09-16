@@ -11,41 +11,32 @@ export function parseMpesaMessage(
 ): ParseResult {
   const errors: string[] = [];
 
-  // Transaction code
   const transactionMatch = message.match(
     /\b([A-Z0-9]{8,12})\s+Confirmed\b/i
   );
 
-  // Payment amount
   const amountMatch = message.match(
     /Ksh\s*([\d,]+(?:\.\d{2})?)/i
   );
 
-  // Payer name and phone number
   const senderMatch = message.match(
-    /from\s+(.+?)\s+(07\d{8}|01\d{8})\s+on\b/i
+    /from\s+(.+?)\s+(07\d{2}(?:\*{3}\d{3}|\d{6})|01\d{2}(?:\*{3}\d{3}|\d{6}))\s+on\b/i
   );
 
-  // Payment date
   const dateMatch = message.match(
     /\bon\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\b/i
   );
 
-  // Payment time
   const timeMatch = message.match(
     /\bat\s+(\d{1,2}:\d{2}\s*(?:AM|PM))\b/i
   );
 
   if (!transactionMatch) {
-    errors.push(
-      "Transaction code could not be detected."
-    );
+    errors.push("Transaction code could not be detected.");
   }
 
   if (!amountMatch) {
-    errors.push(
-      "Payment amount could not be detected."
-    );
+    errors.push("Payment amount could not be detected.");
   }
 
   if (!senderMatch) {
@@ -55,15 +46,11 @@ export function parseMpesaMessage(
   }
 
   if (!dateMatch) {
-    errors.push(
-      "Payment date could not be detected."
-    );
+    errors.push("Payment date could not be detected.");
   }
 
   if (!timeMatch) {
-    errors.push(
-      "Payment time could not be detected."
-    );
+    errors.push("Payment time could not be detected.");
   }
 
   if (errors.length > 0) {

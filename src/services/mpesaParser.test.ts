@@ -69,4 +69,73 @@ describe("parseMpesaMessage", () => {
       "Payment amount could not be detected."
     );
   });
+
+  it("parses M-Pesa messages with masked phone numbers", () => {
+    const message =
+        "UIFG26DTEV Confirmed.You have received Ksh2,000.00 from CHEPKURUI  NANCY 0721***985 on 15/9/26 at 12:26 PM  New M-PESA balance is Ksh2,010.44. Invest & earn daily interest with ZIIDI on https://saf.cx/cF6ir";
+
+    const result = parseMpesaMessage(message);
+
+    expect(result.success).toBe(true);
+
+    expect(result.data).toEqual({
+        transactionCode: "UIFG26DTEV",
+        amount: 2000,
+        payerName: "CHEPKURUI  NANCY",
+        phoneNumber: "0721***985",
+        paymentDate: "15/9/26",
+        paymentTime: "12:26 PM",
+    });
+    });
+
+    it("handles Confirmed followed immediately by the message", () => {
+        const message =
+            "UIFG26DTEV Confirmed.You have received Ksh2,000.00 from CHEPKURUI NANCY 0721***985 on 15/9/26 at 12:26 PM New M-PESA balance is Ksh2,010.44.";
+
+        const result = parseMpesaMessage(message);
+
+        expect(result.success).toBe(true);
+        expect(result.data?.transactionCode).toBe("UIFG26DTEV");
+        expect(result.data?.amount).toBe(2000);
+    });
+
+    it("handles extra spaces between payer name and phone number", () => {
+        const message =
+            "UIFG26DTEV Confirmed. You have received Ksh2,000.00 from CHEPKURUI    NANCY    0721***985 on 15/9/26 at 12:26 PM.";
+
+        const result = parseMpesaMessage(message);
+
+        expect(result.success).toBe(true);
+        expect(result.data?.payerName).toBe(
+            "CHEPKURUI    NANCY"
+        );
+        expect(result.data?.phoneNumber).toBe(
+            "0721***985"
+        );
+    });
+
+    it("handles a full unmasked phone number", () => {
+        const message =
+            "UIFG26DTEV Confirmed. You have received Ksh2,000.00 from JOHN KIPKEMOI 0721234567 on 15/9/26 at 12:26 PM.";
+
+        const result = parseMpesaMessage(message);
+
+        expect(result.success).toBe(true);
+        expect(result.data?.payerName).toBe(
+            "JOHN KIPKEMOI"
+        );
+        expect(result.data?.phoneNumber).toBe(
+            "0721234567"
+        );
+    });
+
+    it("ignores the M-Pesa balance when extracting the payment amount", () => {
+        const message =
+            "UIFG26DTEV Confirmed. You have received Ksh2,000.00 from JOHN KIPKEMOI 0721234567 on 15/9/26 at 12:26 PM. New M-PESA balance is Ksh25,000.00.";
+
+        const result = parseMpesaMessage(message);
+
+        expect(result.success).toBe(true);
+        expect(result.data?.amount).toBe(2000);
+    });
 });

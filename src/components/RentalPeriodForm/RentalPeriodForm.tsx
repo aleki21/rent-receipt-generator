@@ -34,29 +34,32 @@ function RentalPeriodForm({
     }
 
     const period: RentalPeriod = {
-        startDate,
-        endDate,
-        description:
-            description.trim() ||
-            getRentalDescription(startDate, endDate),
+      startDate,
+      endDate,
+      description:
+        description.trim() ||
+        getRentalDescription(startDate, endDate),
     };
 
     onSubmit(period);
   }
 
   return (
-    <section className="mt-8 w-full max-w-2xl rounded-xl bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-semibold">
+    <section className="mt-8 w-full max-w-2xl rounded-xl bg-white p-5 shadow-sm sm:p-6">
+      <h2 className="text-lg font-semibold sm:text-xl">
         Rental Period
       </h2>
 
-      <p className="mt-2 text-gray-600">
+      <p className="mt-2 text-sm leading-6 text-gray-600">
         Enter the period covered by this payment.
       </p>
 
       {error && (
-        <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-700">
+        <div
+          role="alert"
+          className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4"
+        >
+          <p className="text-sm font-medium leading-6 text-red-700">
             {error}
           </p>
         </div>
@@ -83,7 +86,7 @@ function RentalPeriodForm({
               setError("");
             }}
             required
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
         </div>
 
@@ -104,7 +107,7 @@ function RentalPeriodForm({
               setError("");
             }}
             required
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
         </div>
 
@@ -124,13 +127,17 @@ function RentalPeriodForm({
               setDescription(event.target.value)
             }
             placeholder="e.g. Rent for September 2026"
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3"
+            className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
+
+          <p className="mt-2 text-xs leading-5 text-gray-500">
+            Leave this blank to generate a description automatically.
+          </p>
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
+          className="w-full rounded-lg bg-black px-5 py-3.5 text-sm font-medium text-white"
         >
           Continue
         </button>

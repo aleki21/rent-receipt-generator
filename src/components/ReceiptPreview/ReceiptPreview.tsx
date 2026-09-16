@@ -1,5 +1,7 @@
 import type { Receipt } from "../../types/receipt";
 import { formatDate } from "../../utils/date";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ReceiptPDF from "../ReceiptPDF/ReceiptPDF";
 
 interface ReceiptPreviewProps {
   receipt: Receipt;
@@ -213,6 +215,20 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
           </p>
         </div>
       </div>
+      
+      <div className="mt-6">
+        <PDFDownloadLink
+            document={<ReceiptPDF receipt={receipt} />}
+            fileName={`${receipt.receiptNumber}-${receipt.payment.payerName.replace(
+            /\s+/g,
+            "-"
+            )}.pdf`}
+            className="block w-full rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
+        >
+            Download PDF
+        </PDFDownloadLink>
+      </div>
+      
     </section>
   );
 }

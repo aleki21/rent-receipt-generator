@@ -1,15 +1,19 @@
 import { useState } from "react";
 import MpesaInput from "./components/MpesaInput/MpesaInput";
 import PaymentDetails from "./components/PaymentDetails/PaymentDetails";
+import RentalPeriodForm from "./components/RentalPeriodForm/RentalPeriodForm";
+import type { RentalPeriod } from "./types/receipt";
 import type { ParseResult } from "./services/mpesaParser";
 
 function App() {
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [rentalPeriod, setRentalPeriod] = useState<RentalPeriod | null>(null);
 
   function handleParsed(result: ParseResult) {
     setParseResult(result);
     setConfirmed(false);
+    setRentalPeriod(null);
   }
 
   function handleConfirm() {
@@ -18,6 +22,10 @@ function App() {
 
   function handleEdit() {
     setConfirmed(false);
+  }
+
+  function handleRentalPeriodSubmit(period: RentalPeriod) {
+    setRentalPeriod(period);
   }
 
   const payment = parseResult?.success
@@ -61,11 +69,27 @@ function App() {
           </div>
         )}
 
-        {confirmed && (
+        {confirmed && payment && (
+          <RentalPeriodForm
+            onSubmit={handleRentalPeriodSubmit}
+          />
+        )}
+
+        {rentalPeriod && (
           <div className="mt-8 rounded-lg bg-green-50 p-5">
             <p className="font-medium text-green-800">
-              Payment details confirmed.
+              Rental period saved.
             </p>
+
+            <p className="mt-2">
+              {rentalPeriod.startDate} → {rentalPeriod.endDate}
+            </p>
+
+            {rentalPeriod.description && (
+              <p className="mt-1">
+                {rentalPeriod.description}
+              </p>
+            )}
           </div>
         )}
       </div>

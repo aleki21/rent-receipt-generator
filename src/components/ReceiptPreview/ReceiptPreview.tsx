@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PDFDownloadLink, pdf } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import type { Receipt } from "../../types/receipt";
 import { formatDate } from "../../utils/date";
 import ReceiptPDF from "../ReceiptPDF/ReceiptPDF";
@@ -17,11 +17,16 @@ function ReceiptPreview({
   const [finalReceipt, setFinalReceipt] =
     useState<Receipt | null>(null);
 
-  const [isSharing, setIsSharing] = useState(false);
+  const [isDownloading, setIsDownloading] =
+    useState(false);
 
-  const currentReceipt = finalReceipt ?? receipt;
+  const [isSharing, setIsSharing] =
+    useState(false);
 
-  function handleFinalize() {
+  const currentReceipt =
+    finalReceipt ?? receipt;
+
+  function handleFinalize(): Receipt {
     if (finalReceipt) {
       return finalReceipt;
     }
@@ -31,6 +36,50 @@ function ReceiptPreview({
     setFinalReceipt(finalized);
 
     return finalized;
+  }
+
+  async function handleDownload() {
+    try {
+      setIsDownloading(true);
+
+      const receiptToDownload =
+        handleFinalize();
+
+      const blob = await pdf(
+        <ReceiptPDF
+          receipt={receiptToDownload}
+        />
+      ).toBlob();
+
+      const fileName = `${receiptToDownload.receiptNumber}-${receiptToDownload.payment.payerName.replace(
+        /\s+/g,
+        "-"
+      )}.pdf`;
+
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = fileName;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(
+        "Failed to download receipt:",
+        error
+      );
+
+      alert(
+        "We couldn't download the receipt. Please try again."
+      );
+    } finally {
+      setIsDownloading(false);
+    }
   }
 
   async function handleShare() {
@@ -44,10 +93,13 @@ function ReceiptPreview({
     try {
       setIsSharing(true);
 
-      const receiptToShare = handleFinalize();
+      const receiptToShare =
+        handleFinalize();
 
       const blob = await pdf(
-        <ReceiptPDF receipt={receiptToShare} />
+        <ReceiptPDF
+          receipt={receiptToShare}
+        />
       ).toBlob();
 
       const fileName = `${receiptToShare.receiptNumber}-${receiptToShare.payment.payerName.replace(
@@ -55,13 +107,19 @@ function ReceiptPreview({
         "-"
       )}.pdf`;
 
-      const file = new File([blob], fileName, {
-        type: "application/pdf",
-      });
+      const file = new File(
+        [blob],
+        fileName,
+        {
+          type: "application/pdf",
+        }
+      );
 
       if (
         navigator.canShare &&
-        !navigator.canShare({ files: [file] })
+        !navigator.canShare({
+          files: [file],
+        })
       ) {
         alert(
           "This device cannot share PDF files. Please download the PDF instead."
@@ -82,7 +140,10 @@ function ReceiptPreview({
         return;
       }
 
-      console.error("Failed to share receipt:", error);
+      console.error(
+        "Failed to share receipt:",
+        error
+      );
 
       alert(
         "We couldn't share the receipt. Please download the PDF instead."
@@ -130,7 +191,9 @@ function ReceiptPreview({
             </p>
 
             <p className="mt-1 font-semibold">
-              {formatDate(currentReceipt.issueDate)}
+              {formatDate(
+                currentReceipt.issueDate
+              )}
             </p>
           </div>
         </div>
@@ -143,22 +206,36 @@ function ReceiptPreview({
 
           <div className="mt-3 space-y-1 text-sm">
             <p className="break-words font-medium">
-              {currentReceipt.landlord.businessName}
+              {
+                currentReceipt.landlord
+                  .businessName
+              }
             </p>
 
             <p className="text-gray-600">
-              {currentReceipt.landlord.phoneNumber}
+              {
+                currentReceipt.landlord
+                  .phoneNumber
+              }
             </p>
 
-            {currentReceipt.landlord.address && (
+            {currentReceipt.landlord
+              .address && (
               <p className="break-words text-gray-600">
-                {currentReceipt.landlord.address}
+                {
+                  currentReceipt.landlord
+                    .address
+                }
               </p>
             )}
 
-            {currentReceipt.landlord.email && (
+            {currentReceipt.landlord
+              .email && (
               <p className="break-all text-gray-600">
-                {currentReceipt.landlord.email}
+                {
+                  currentReceipt.landlord
+                    .email
+                }
               </p>
             )}
           </div>
@@ -172,11 +249,17 @@ function ReceiptPreview({
 
           <div className="mt-3 space-y-1 text-sm">
             <p className="break-words font-medium">
-              {currentReceipt.payment.payerName}
+              {
+                currentReceipt.payment
+                  .payerName
+              }
             </p>
 
             <p className="text-gray-600">
-              {currentReceipt.payment.phoneNumber}
+              {
+                currentReceipt.payment
+                  .phoneNumber
+              }
             </p>
           </div>
         </div>
@@ -210,7 +293,9 @@ function ReceiptPreview({
               </span>
 
               <span className="text-sm font-medium">
-                {currentReceipt.paymentMethod}
+                {
+                  currentReceipt.paymentMethod
+                }
               </span>
             </div>
 
@@ -220,7 +305,10 @@ function ReceiptPreview({
               </span>
 
               <span className="break-all text-sm font-medium">
-                {currentReceipt.payment.transactionCode}
+                {
+                  currentReceipt.payment
+                    .transactionCode
+                }
               </span>
             </div>
 
@@ -231,7 +319,8 @@ function ReceiptPreview({
 
               <span className="text-sm font-medium">
                 {formatDate(
-                  currentReceipt.payment.paymentDate
+                  currentReceipt.payment
+                    .paymentDate
                 )}
               </span>
             </div>
@@ -242,7 +331,10 @@ function ReceiptPreview({
               </span>
 
               <span className="text-sm font-medium">
-                {currentReceipt.payment.paymentTime}
+                {
+                  currentReceipt.payment
+                    .paymentTime
+                }
               </span>
             </div>
           </div>
@@ -263,7 +355,9 @@ function ReceiptPreview({
 
                 <p className="mt-1 text-sm font-medium">
                   {formatDate(
-                    currentReceipt.rentalPeriod.startDate
+                    currentReceipt
+                      .rentalPeriod
+                      .startDate
                   )}
                 </p>
               </div>
@@ -275,15 +369,22 @@ function ReceiptPreview({
 
                 <p className="mt-1 text-sm font-medium">
                   {formatDate(
-                    currentReceipt.rentalPeriod.endDate
+                    currentReceipt
+                      .rentalPeriod
+                      .endDate
                   )}
                 </p>
               </div>
             </div>
 
-            {currentReceipt.rentalPeriod.description && (
+            {currentReceipt.rentalPeriod
+              .description && (
               <p className="mt-4 break-words border-t pt-4 text-sm text-gray-600">
-                {currentReceipt.rentalPeriod.description}
+                {
+                  currentReceipt
+                    .rentalPeriod
+                    .description
+                }
               </p>
             )}
           </div>
@@ -296,29 +397,25 @@ function ReceiptPreview({
           </p>
 
           <p className="mt-2 text-xs leading-5 text-gray-500">
-            This is a rent payment receipt generated from
-            an M-Pesa payment confirmation.
+            This is a rent payment receipt
+            generated from an M-Pesa payment
+            confirmation.
           </p>
         </div>
       </div>
 
       {/* Actions */}
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <PDFDownloadLink
-          document={
-            <ReceiptPDF
-              receipt={currentReceipt}
-            />
-          }
-          fileName={`${currentReceipt.receiptNumber}-${currentReceipt.payment.payerName.replace(
-            /\s+/g,
-            "-"
-          )}.pdf`}
-          onClick={handleFinalize}
-          className="w-full rounded-lg bg-black px-5 py-3.5 text-center text-sm font-medium text-white"
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="w-full rounded-lg bg-black px-5 py-3.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Download PDF
-        </PDFDownloadLink>
+          {isDownloading
+            ? "Preparing PDF..."
+            : "Download PDF"}
+        </button>
 
         <button
           type="button"
@@ -326,7 +423,9 @@ function ReceiptPreview({
           disabled={isSharing}
           className="w-full rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isSharing ? "Preparing PDF..." : "Share PDF"}
+          {isSharing
+            ? "Preparing PDF..."
+            : "Share PDF"}
         </button>
       </div>
 

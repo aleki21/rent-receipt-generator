@@ -86,6 +86,13 @@ function App() {
     setShowSettings(false);
   }
 
+  function handleStartOver() {
+    setParseResult(null);
+    setRentalPeriod(null);
+    setReceipt(null);
+    setStep("input");
+  }
+
   const payment = parseResult?.success
     ? parseResult.data
     : undefined;
@@ -163,7 +170,10 @@ function App() {
           )}
 
         {step === "preview" && receipt && (
-          <ReceiptPreview receipt={receipt} />
+          <ReceiptPreview
+            receipt={receipt}
+            onStartOver={handleStartOver}
+          />
         )}
       </div>
     </main>

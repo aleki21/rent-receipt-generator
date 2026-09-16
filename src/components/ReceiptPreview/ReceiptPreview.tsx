@@ -7,9 +7,13 @@ import { finalizeReceipt } from "../../services/receiptService";
 
 interface ReceiptPreviewProps {
   receipt: Receipt;
+  onStartOver: () => void;
 }
 
-function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
+function ReceiptPreview({
+  receipt,
+  onStartOver,
+}: ReceiptPreviewProps) {
   const [finalReceipt, setFinalReceipt] =
     useState<Receipt | null>(null);
 
@@ -325,6 +329,15 @@ function ReceiptPreview({ receipt }: ReceiptPreviewProps) {
           {isSharing ? "Preparing PDF..." : "Share PDF"}
         </button>
       </div>
+
+      {/* Start Over */}
+      <button
+        type="button"
+        onClick={onStartOver}
+        className="mt-3 w-full rounded-lg border border-gray-300 bg-white px-5 py-3 font-medium"
+      >
+        Start New Receipt
+      </button>
     </section>
   );
 }

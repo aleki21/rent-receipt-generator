@@ -15,27 +15,37 @@ interface ReceiptPDFProps {
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: "Helvetica",
+    color: "#222222",
   },
 
   header: {
-    textAlign: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
+    alignItems: "center",
     paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#dddddd",
   },
 
   businessName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  landlordInfo: {
+    marginTop: 6,
+    fontSize: 9,
+    color: "#666666",
+    textAlign: "center",
   },
 
   title: {
-    marginTop: 6,
-    fontSize: 11,
+    marginTop: 14,
+    fontSize: 12,
     fontWeight: "bold",
     letterSpacing: 2,
+    textAlign: "center",
   },
 
   paid: {
@@ -43,71 +53,147 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "#dcfce7",
     color: "#166534",
-    padding: "6 12",
+    padding: "6 16",
     borderRadius: 12,
+    fontSize: 9,
+    fontWeight: "bold",
+  },
+
+  receiptInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#dddddd",
+  },
+
+  infoBlock: {
+    width: "48%",
+  },
+
+  label: {
+    fontSize: 8,
+    color: "#777777",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+
+  value: {
+    marginTop: 4,
     fontSize: 10,
     fontWeight: "bold",
   },
 
+  amountSection: {
+    marginTop: 18,
+    padding: 18,
+    backgroundColor: "#f5f5f5",
+    alignItems: "center",
+  },
+
+  amountLabel: {
+    fontSize: 8,
+    color: "#777777",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+
+  amount: {
+    marginTop: 6,
+    fontSize: 26,
+    fontWeight: "bold",
+  },
+
+  paymentMethod: {
+    marginTop: 5,
+    fontSize: 9,
+    color: "#666666",
+  },
+
   section: {
-    paddingVertical: 18,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#eeeeee",
   },
 
   sectionTitle: {
-    fontSize: 9,
-    color: "#666666",
+    marginBottom: 9,
+    fontSize: 8,
+    color: "#777777",
     fontWeight: "bold",
     textTransform: "uppercase",
     letterSpacing: 1,
-    marginBottom: 8,
   },
 
-  text: {
-    marginBottom: 4,
+  personName: {
+    fontSize: 12,
+    fontWeight: "bold",
   },
 
-  smallText: {
+  secondaryText: {
+    marginTop: 4,
     fontSize: 9,
     color: "#666666",
-    marginBottom: 4,
   },
 
-  row: {
+  transactionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 7,
+    paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: "#eeeeee",
   },
 
-  label: {
+  transactionLabel: {
+    fontSize: 9,
     color: "#666666",
   },
 
-  value: {
+  transactionValue: {
+    maxWidth: "60%",
+    fontSize: 9,
     fontWeight: "bold",
+    textAlign: "right",
   },
 
   rentalBox: {
-    marginTop: 8,
     padding: 12,
     backgroundColor: "#f8f8f8",
   },
 
-  footer: {
-    paddingTop: 25,
-    textAlign: "center",
+  rentalDates: {
+    fontSize: 10,
+    fontWeight: "bold",
   },
 
-  footerText: {
+  rentalDescription: {
+    marginTop: 7,
     fontSize: 9,
     color: "#666666",
   },
+
+  footer: {
+    paddingTop: 24,
+    alignItems: "center",
+  },
+
+  footerThankYou: {
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+
+  footerNote: {
+    marginTop: 7,
+    fontSize: 8,
+    color: "#777777",
+    textAlign: "center",
+    lineHeight: 1.4,
+  },
 });
 
-function ReceiptPDF({ receipt }: ReceiptPDFProps) {
+function ReceiptPDF({
+  receipt,
+}: ReceiptPDFProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -116,6 +202,24 @@ function ReceiptPDF({ receipt }: ReceiptPDFProps) {
           <Text style={styles.businessName}>
             {receipt.landlord.businessName}
           </Text>
+
+          {receipt.landlord.phoneNumber && (
+            <Text style={styles.landlordInfo}>
+              {receipt.landlord.phoneNumber}
+            </Text>
+          )}
+
+          {receipt.landlord.address && (
+            <Text style={styles.landlordInfo}>
+              {receipt.landlord.address}
+            </Text>
+          )}
+
+          {receipt.landlord.email && (
+            <Text style={styles.landlordInfo}>
+              {receipt.landlord.email}
+            </Text>
+          )}
 
           <Text style={styles.title}>
             RENT PAYMENT RECEIPT
@@ -127,8 +231,8 @@ function ReceiptPDF({ receipt }: ReceiptPDFProps) {
         </View>
 
         {/* Receipt Information */}
-        <View style={styles.section}>
-          <View style={styles.row}>
+        <View style={styles.receiptInfo}>
+          <View style={styles.infoBlock}>
             <Text style={styles.label}>
               Receipt Number
             </Text>
@@ -138,7 +242,7 @@ function ReceiptPDF({ receipt }: ReceiptPDFProps) {
             </Text>
           </View>
 
-          <View style={styles.row}>
+          <View style={styles.infoBlock}>
             <Text style={styles.label}>
               Issue Date
             </Text>
@@ -149,104 +253,77 @@ function ReceiptPDF({ receipt }: ReceiptPDFProps) {
           </View>
         </View>
 
-        {/* Landlord */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Landlord Details
+        {/* Amount */}
+        <View style={styles.amountSection}>
+          <Text style={styles.amountLabel}>
+            Amount Received
           </Text>
 
-          <Text style={styles.text}>
-            {receipt.landlord.businessName}
+          <Text style={styles.amount}>
+            Ksh{" "}
+            {receipt.payment.amount.toLocaleString(
+              "en-KE",
+              {
+                minimumFractionDigits: 2,
+              }
+            )}
           </Text>
 
-          <Text style={styles.smallText}>
-            {receipt.landlord.phoneNumber}
+          <Text style={styles.paymentMethod}>
+            Payment Method:{" "}
+            {receipt.paymentMethod}
           </Text>
-
-          {receipt.landlord.address && (
-            <Text style={styles.smallText}>
-              {receipt.landlord.address}
-            </Text>
-          )}
-
-          {receipt.landlord.email && (
-            <Text style={styles.smallText}>
-              {receipt.landlord.email}
-            </Text>
-          )}
         </View>
 
         {/* Payer */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Payment From
+            Paid By
           </Text>
 
-          <Text style={styles.text}>
+          <Text style={styles.personName}>
             {receipt.payment.payerName}
           </Text>
 
-          <Text style={styles.smallText}>
+          <Text style={styles.secondaryText}>
             {receipt.payment.phoneNumber}
           </Text>
         </View>
 
-        {/* Payment */}
+        {/* Transaction Details */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Payment Details
+            Transaction Details
           </Text>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>Amount</Text>
-
-            <Text style={styles.value}>
-              Ksh{" "}
-              {receipt.payment.amount.toLocaleString(
-                "en-KE",
-                {
-                  minimumFractionDigits: 2,
-                }
-              )}
-            </Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>
-              Payment Method
-            </Text>
-
-            <Text style={styles.value}>
-              {receipt.paymentMethod}
-            </Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>
+          <View style={styles.transactionRow}>
+            <Text style={styles.transactionLabel}>
               Transaction Code
             </Text>
 
-            <Text style={styles.value}>
+            <Text style={styles.transactionValue}>
               {receipt.payment.transactionCode}
             </Text>
           </View>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>
+          <View style={styles.transactionRow}>
+            <Text style={styles.transactionLabel}>
               Payment Date
             </Text>
 
-            <Text style={styles.value}>
-              {formatDate(receipt.payment.paymentDate)}
+            <Text style={styles.transactionValue}>
+              {formatDate(
+                receipt.payment.paymentDate
+              )}
             </Text>
           </View>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>
+          <View style={styles.transactionRow}>
+            <Text style={styles.transactionLabel}>
               Payment Time
             </Text>
 
-            <Text style={styles.value}>
+            <Text style={styles.transactionValue}>
               {receipt.payment.paymentTime}
             </Text>
           </View>
@@ -259,23 +336,23 @@ function ReceiptPDF({ receipt }: ReceiptPDFProps) {
           </Text>
 
           <View style={styles.rentalBox}>
-            <Text style={styles.text}>
-              Start:{" "}
+            <Text style={styles.rentalDates}>
               {formatDate(
                 receipt.rentalPeriod.startDate
-              )}
-            </Text>
-
-            <Text style={styles.text}>
-              End:{" "}
+              )}{" "}
+              –{" "}
               {formatDate(
                 receipt.rentalPeriod.endDate
               )}
             </Text>
 
-            {receipt.rentalPeriod.description && (
-              <Text style={styles.smallText}>
-                {receipt.rentalPeriod.description}
+            {receipt.rentalPeriod
+              .description && (
+              <Text style={styles.rentalDescription}>
+                {
+                  receipt.rentalPeriod
+                    .description
+                }
               </Text>
             )}
           </View>
@@ -283,13 +360,13 @@ function ReceiptPDF({ receipt }: ReceiptPDFProps) {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
+          <Text style={styles.footerThankYou}>
             Thank you for your payment.
           </Text>
 
-          <Text style={styles.footerText}>
-            This is a rent payment receipt generated from
-            an M-Pesa payment confirmation.
+          <Text style={styles.footerNote}>
+            This is a rent payment receipt generated
+            from an M-Pesa payment confirmation.
           </Text>
         </View>
       </Page>

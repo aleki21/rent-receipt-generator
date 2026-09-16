@@ -31,3 +31,26 @@ export function formatDate(dateString: string): string {
 export function getToday(): string {
   return new Date().toISOString().split("T")[0];
 }
+
+export function getRentalDescription(
+  startDate: string,
+  endDate: string
+): string {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  const sameMonth =
+    start.getMonth() === end.getMonth() &&
+    start.getFullYear() === end.getFullYear();
+
+  if (sameMonth) {
+    return `Rent for ${start.toLocaleDateString("en-KE", {
+      month: "long",
+      year: "numeric",
+    })}`;
+  }
+
+  return `Rent from ${formatDate(startDate)} to ${formatDate(
+    endDate
+  )}`;
+}

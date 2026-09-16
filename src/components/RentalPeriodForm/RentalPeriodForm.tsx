@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RentalPeriod } from "../../types/receipt";
+import { getRentalDescription } from "../../utils/date";
 
 interface RentalPeriodFormProps {
   onSubmit: (period: RentalPeriod) => void;
@@ -33,9 +34,11 @@ function RentalPeriodForm({
     }
 
     const period: RentalPeriod = {
-      startDate,
-      endDate,
-      description: description.trim() || undefined,
+        startDate,
+        endDate,
+        description:
+            description.trim() ||
+            getRentalDescription(startDate, endDate),
     };
 
     onSubmit(period);

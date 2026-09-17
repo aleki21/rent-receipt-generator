@@ -23,9 +23,8 @@ function PaymentDetails({
     payment.payerName
   );
 
-  const [phoneNumber, setPhoneNumber] = useState(
-    payment.phoneNumber
-  );
+  const [phoneNumber, setPhoneNumber] =
+    useState(payment.phoneNumber || "");
 
   const [paymentDate, setPaymentDate] = useState(
     payment.paymentDate
@@ -60,11 +59,6 @@ function PaymentDetails({
       return;
     }
 
-    if (!phoneNumber.trim()) {
-      setError("Please enter the payer phone number.");
-      return;
-    }
-
     if (!paymentDate.trim()) {
       setError("Please enter the payment date.");
       return;
@@ -80,7 +74,8 @@ function PaymentDetails({
         transactionCode.trim().toUpperCase(),
       amount: numericAmount,
       payerName: payerName.trim(),
-      phoneNumber: phoneNumber.trim(),
+      phoneNumber:
+        phoneNumber.trim() || undefined,
       paymentDate: paymentDate.trim(),
       paymentTime: paymentTime.trim(),
     };
@@ -179,6 +174,9 @@ function PaymentDetails({
             className="block text-sm font-medium"
           >
             Phone Number
+            <span className="ml-1 font-normal text-gray-500">
+              (optional)
+            </span>
           </label>
 
           <input
@@ -189,8 +187,13 @@ function PaymentDetails({
               setPhoneNumber(event.target.value);
               setError("");
             }}
+            placeholder="e.g. 0721234567"
             className="mt-2 w-full rounded-lg border border-gray-300 bg-white p-3.5 text-sm outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
           />
+
+          <p className="mt-2 text-xs leading-5 text-gray-500">
+            Some M-Pesa payment confirmations do not include a phone number.
+          </p>
         </div>
 
         <div>

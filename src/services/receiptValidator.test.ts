@@ -82,17 +82,14 @@ describe("validateReceipt", () => {
     );
   });
 
-  it("rejects a missing payer phone number", () => {
+  it("accepts a receipt without a payer phone number", () => {
     const receipt = createValidReceipt();
 
-    receipt.payment.phoneNumber = "";
+    receipt.payment.phoneNumber = undefined;
 
     const result = validateReceipt(receipt);
 
-    expect(result.valid).toBe(false);
-    expect(result.errors).toContain(
-      "Payer phone number is required."
-    );
+    expect(result.valid).toBe(true);
   });
 
   it("rejects a missing payment date", () => {

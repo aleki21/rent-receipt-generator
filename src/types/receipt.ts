@@ -2,7 +2,7 @@ export interface PaymentDetails {
   transactionCode: string;
   amount: number;
   payerName: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   paymentDate: string;
   paymentTime: string;
 }

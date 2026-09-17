@@ -285,9 +285,11 @@ function ReceiptPDF({
             {receipt.payment.payerName}
           </Text>
 
-          <Text style={styles.secondaryText}>
-            {receipt.payment.phoneNumber}
-          </Text>
+          {receipt.payment.phoneNumber && (
+            <Text style={styles.secondaryText}>
+              {receipt.payment.phoneNumber}
+            </Text>
+          )}
         </View>
 
         {/* Transaction Details */}

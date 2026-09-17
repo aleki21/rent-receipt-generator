@@ -12,15 +12,19 @@ export function parseMpesaMessage(
   const errors: string[] = [];
 
   const transactionMatch = message.match(
-    /\b([A-Z0-9]{8,12})\s+Confirmed\b/i
+    /\b([A-Z0-9]{8,12})\s+confirmed\b/i
   );
 
   const amountMatch = message.match(
     /Ksh\s*([\d,]+(?:\.\d{2})?)/i
   );
 
-  const senderMatch = message.match(
+  const senderWithPhoneMatch = message.match(
     /from\s+(.+?)\s+(07\d{2}(?:\*{3}\d{3}|\d{6})|01\d{2}(?:\*{3}\d{3}|\d{6}))\s+on\b/i
+  );
+
+  const senderWithoutPhoneMatch = message.match(
+    /from\s+(.+?)\s+on\s+\d{1,2}\/\d{1,2}\/\d{2,4}\s+at\b/i
   );
 
   const dateMatch = message.match(
@@ -39,9 +43,12 @@ export function parseMpesaMessage(
     errors.push("Payment amount could not be detected.");
   }
 
-  if (!senderMatch) {
+  if (
+    !senderWithPhoneMatch &&
+    !senderWithoutPhoneMatch
+  ) {
     errors.push(
-      "Payer name and phone number could not be detected."
+      "Payer name could not be detected."
     );
   }
 
@@ -76,8 +83,13 @@ export function parseMpesaMessage(
     };
   }
 
-  const payerName = senderMatch![1].trim();
-  const phoneNumber = senderMatch![2];
+  const payerName = (
+    senderWithPhoneMatch?.[1] ??
+    senderWithoutPhoneMatch![1]
+  ).trim();
+
+  const phoneNumber =
+    senderWithPhoneMatch?.[2];
 
   const paymentDate = dateMatch![1];
   const paymentTime = timeMatch![1];

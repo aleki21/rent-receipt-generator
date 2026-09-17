@@ -254,9 +254,11 @@ function ReceiptPreview({
             {currentReceipt.payment.payerName}
           </p>
 
-          <p className="mt-1 text-sm text-gray-600">
-            {currentReceipt.payment.phoneNumber}
-          </p>
+          {currentReceipt.payment.phoneNumber && (
+            <p className="mt-1 text-sm text-gray-600">
+              {currentReceipt.payment.phoneNumber}
+            </p>
+          )}
         </div>
 
         {/* Transaction details */}

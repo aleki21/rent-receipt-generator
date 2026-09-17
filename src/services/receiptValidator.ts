@@ -10,7 +10,6 @@ export function validateReceipt(
 ): ReceiptValidationResult {
   const errors: string[] = [];
 
-  // Payment validation
   if (!receipt.payment.transactionCode.trim()) {
     errors.push(
       "Transaction code is required."
@@ -32,12 +31,6 @@ export function validateReceipt(
     );
   }
 
-  if (!receipt.payment.phoneNumber.trim()) {
-    errors.push(
-      "Payer phone number is required."
-    );
-  }
-
   if (!receipt.payment.paymentDate.trim()) {
     errors.push(
       "Payment date is required."
@@ -50,7 +43,6 @@ export function validateReceipt(
     );
   }
 
-  // Rental period validation
   if (!receipt.rentalPeriod.startDate) {
     errors.push(
       "Rental period start date is required."
@@ -74,7 +66,6 @@ export function validateReceipt(
     );
   }
 
-  // Landlord validation
   if (!receipt.landlord.businessName.trim()) {
     errors.push(
       "Landlord or business name is required."

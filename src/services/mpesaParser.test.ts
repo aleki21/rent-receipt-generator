@@ -138,4 +138,22 @@ describe("parseMpesaMessage", () => {
         expect(result.success).toBe(true);
         expect(result.data?.amount).toBe(2000);
     });
+
+    it("parses payments from Remitly without a phone number", () => {
+      const message =
+        "UHBG22AE4L confirmed. You have received Ksh200,001.00 from Anyier Anei in GB via Remitly on 11/8/26 at 12:04 PM. New M-PESA balance is Ksh345,964.50.";
+
+      const result = parseMpesaMessage(message);
+
+      expect(result.success).toBe(true);
+
+      expect(result.data).toEqual({
+        transactionCode: "UHBG22AE4L",
+        amount: 200001,
+        payerName: "Anyier Anei in GB via Remitly",
+        phoneNumber: undefined,
+        paymentDate: "11/8/26",
+        paymentTime: "12:04 PM",
+      });
+    });
 });
